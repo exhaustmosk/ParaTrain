@@ -93,7 +93,12 @@ function Dashboard() {
             {/* SIMULATIONS */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Simulation Modes</h2>
-              <span className="text-[#00ACD8] text-sm cursor-pointer">View All →</span>
+              <span
+                className="text-[#00ACD8] text-sm cursor-pointer hover:underline"
+                onClick={() => navigate("/dashboard/simulation-modes")}
+              >
+                View All →
+              </span>
             </div>
 
             <div className="grid grid-cols-4 gap-6 mb-10">
