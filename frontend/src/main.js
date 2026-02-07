@@ -9,8 +9,10 @@ if (require('electron-squirrel-startup')) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200, // Increased width slightly for a better dashboard view
+    height: 800,
+    backgroundColor: '#111827', // Sets background to dark (matches your theme) to prevent white flashes
+    autoHideMenuBar: true,      // Hides the "File Edit View" menu bar for a cleaner app look
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -20,7 +22,29 @@ const createWindow = () => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools(); // Commented out for production feel, uncomment to debug
+
+  // --- THE FIX ---
+  // This injects CSS directly into the window to remove the white border and double scrollbars.
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.insertCSS(`
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important; /* Removes the outer "double" scrollbar */
+        background-color: #111827; /* Ensures background matches your app theme */
+      }
+      
+      /* Optional: Ensures your React root div takes full height */
+      #root {
+        height: 100vh;
+        width: 100vw;
+        overflow-y: auto; /* Keeps the scrollbar ONLY inside the app */
+      }
+    `);
+  });
 };
 
 // This method will be called when Electron has finished
