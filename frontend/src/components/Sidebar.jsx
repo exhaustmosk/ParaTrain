@@ -1,7 +1,11 @@
 import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 
 function Sidebar({ isOpen, onClose }) {
+  const location = useLocation();
+  const linkClass = (path) =>
+    `block cursor-pointer hover:text-[#00ACD8] ${location.pathname === path ? "text-[#00ACD8] font-medium" : ""}`;
   return (
     <>
       {/* OVERLAY */}
@@ -31,21 +35,24 @@ function Sidebar({ isOpen, onClose }) {
           </div>
 
           <nav className="space-y-4 text-gray-700">
-            <p className="cursor-pointer hover:text-[#00ACD8]">
+            <Link to="/dashboard" className={linkClass("/dashboard")} onClick={onClose}>
               Dashboard
-            </p>
-            <p className="cursor-pointer hover:text-[#00ACD8]">
+            </Link>
+            <Link to="/dashboard/simple" className={linkClass("/dashboard/simple")} onClick={onClose}>
+              Simple Dashboard
+            </Link>
+            <Link to="/dashboard/simulation-modes" className={linkClass("/dashboard/simulation-modes")} onClick={onClose}>
               Simulations
-            </p>
-            <p className="cursor-pointer hover:text-[#00ACD8]">
+            </Link>
+            <Link to="/dashboard/reports" className={linkClass("/dashboard/reports")} onClick={onClose}>
               AI Reports
-            </p>
-            <p className="cursor-pointer hover:text-[#00ACD8]">
+            </Link>
+            <Link to="/dashboard/doctor" className={linkClass("/dashboard/doctor")} onClick={onClose}>
               Doctor Connect
-            </p>
-            <p className="cursor-pointer hover:text-[#00ACD8]">
+            </Link>
+            <Link to="/dashboard/settings" className={linkClass("/dashboard/settings")} onClick={onClose}>
               Settings
-            </p>
+            </Link>
           </nav>
         </div>
       </div>
