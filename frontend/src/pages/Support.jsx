@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ChevronDown, ChevronUp, ArrowLeft } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, ArrowLeft, Phone, Mail } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
 const FAQ_ITEMS = [
@@ -98,6 +98,36 @@ export default function Support() {
               className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Contact cards */}
+      <div className="max-w-3xl mx-auto px-6 -mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a
+            href="tel:+18005551234"
+            className={`flex items-center gap-4 p-5 rounded-2xl border ${card} hover:shadow-lg transition`}
+          >
+            <div className="w-12 h-12 rounded-xl bg-para-teal/10 flex items-center justify-center">
+              <Phone className="w-6 h-6 text-para-teal" />
+            </div>
+            <div>
+              <p className={`font-semibold ${text}`}>Call Support</p>
+              <p className={`text-sm ${muted}`}>+1 (800) 555-1234</p>
+            </div>
+          </a>
+          <a
+            href="mailto:support@paratrain.com"
+            className={`flex items-center gap-4 p-5 rounded-2xl border ${card} hover:shadow-lg transition`}
+          >
+            <div className="w-12 h-12 rounded-xl bg-para-teal/10 flex items-center justify-center">
+              <Mail className="w-6 h-6 text-para-teal" />
+            </div>
+            <div>
+              <p className={`font-semibold ${text}`}>Email Us</p>
+              <p className={`text-sm ${muted}`}>support@paratrain.com</p>
+            </div>
+          </a>
         </div>
       </div>
 

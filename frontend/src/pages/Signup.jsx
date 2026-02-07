@@ -27,8 +27,8 @@ export default function Signup() {
   return (
     <AuthLayout showNav={true}>
       <div className="w-full max-w-md flex flex-col">
-        <div className="relative bg-white rounded-2xl shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
-          <div className="h-1.5 bg-gradient-to-r from-para-teal via-para-teal-light to-para-teal" />
+        <div className="relative bg-white rounded-2xl shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden animate-scaleIn">
+          <div className="h-1.5 bg-gradient-to-r from-para-teal via-para-teal-light to-para-navy" />
           <div className="p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
             {isDoctor ? "Create Doctor Account" : "Create a New Account"}
@@ -76,14 +76,14 @@ export default function Signup() {
             )}
             <button
               type="submit"
-              className="w-full py-3 rounded-lg bg-para-teal text-white font-semibold hover:bg-para-teal-dark transition"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-para-teal to-para-teal-dark text-white font-semibold hover:from-para-teal-dark hover:to-para-navy transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
             >
               Send OTP
             </button>
           </form>
           <p className="text-gray-600 mt-5 text-sm">
             Already have an account?{" "}
-            <Link to={isDoctor ? "/login?admin=1" : "/login"} className="text-para-teal font-medium underline">
+            <Link to={isDoctor ? "/login/doctor" : "/login"} className="text-para-teal font-medium underline">
               Login here
             </Link>
           </p>

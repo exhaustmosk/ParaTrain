@@ -11,6 +11,8 @@ import {
   Phone,
   Users,
   FileText,
+  History,
+  Search,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -19,7 +21,9 @@ import wristsImg from "../assets/wrists.png";
 import legsImg from "../assets/legs.png";
 import fullBodyImg from "../assets/fullbody.png";
 import logo from "../assets/ParaTrainLogo.png";
-import { loadProgress, saveProgress, ORDER, getDefaultProgress } from "../utils/progressStorage";
+import BodyFigure from "../components/BodyFigure";
+import { loadProgress, ORDER, getDefaultProgress, getRecentSessions, getEstimatedNextSessionMinutes, formatTimeStamp, isModeCompletedToday } from "../utils/progressStorage";
+import { getMotivationalMessage, getCurrentMilestone, getNextMilestone, getGreeting, formatSessionDate } from "../utils/patientQoL";
 
 const MODES = [
   { id: "arms", label: "ARMS", image: armsImg, route: "/dashboard/simple/arms" },
@@ -27,60 +31,6 @@ const MODES = [
   { id: "legs", label: "LEGS", image: legsImg, route: "/dashboard/simple/legs" },
   { id: "fullbody", label: "FULL BODY", image: fullBodyImg, route: "/dashboard/simple/fullbody" },
 ];
-
-function BodyFigure({ bodyCompleted, dark }) {
-  const strokeIncomplete = "rgba(239,68,68,0.55)";
-  const fillIncomplete = "rgba(239,68,68,0.18)";
-  const strokeComplete = "rgba(34,197,94,0.85)";
-  const fillComplete = "rgba(34,197,94,0.25)";
-  const s = (part) => (bodyCompleted[part] ? strokeComplete : strokeIncomplete);
-  const f = (part) => (bodyCompleted[part] ? fillComplete : fillIncomplete);
-
-  return (
-    <svg
-      viewBox="0 0 200 380"
-      className="w-full max-w-[280px] md:max-w-[320px] h-auto aspect-[200/380] flex-shrink-0 drop-shadow-lg"
-      fill="none"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {/* Head - oval, more realistic */}
-      <ellipse cx="100" cy="32" rx="22" ry="26" stroke={s("head")} fill={f("head")} />
-      {/* Neck */}
-      <path d="M 88 56 L 88 68 L 112 68 L 112 56" stroke={s("head")} fill={f("head")} />
-      {/* Shoulders / upper chest */}
-      <path d="M 78 68 L 55 72 L 48 95 L 78 92 Z" stroke={s("leftArm")} fill={f("leftArm")} />
-      <path d="M 122 68 L 145 72 L 152 95 L 122 92 Z" stroke={s("rightArm")} fill={f("rightArm")} />
-      {/* Left upper arm */}
-      <path d="M 52 98 L 28 98 L 22 135" stroke={s("leftArm")} fill="none" />
-      {/* Left forearm */}
-      <path d="M 22 135 L 18 175 L 25 178" stroke={s("leftArm")} fill="none" />
-      {/* Left hand */}
-      <ellipse cx="22" cy="188" rx="10" ry="14" stroke={s("leftHand")} fill={f("leftHand")} />
-      {/* Right upper arm */}
-      <path d="M 148 98 L 172 98 L 178 135" stroke={s("rightArm")} fill="none" />
-      {/* Right forearm */}
-      <path d="M 178 135 L 182 175 L 175 178" stroke={s("rightArm")} fill="none" />
-      {/* Right hand */}
-      <ellipse cx="178" cy="188" rx="10" ry="14" stroke={s("rightHand")} fill={f("rightHand")} />
-      {/* Torso - chest and abdomen */}
-      <path d="M 78 92 L 122 92 L 118 165 L 82 165 Z" stroke={s("stomach")} fill={f("stomach")} />
-      {/* Left thigh */}
-      <path d="M 82 165 L 72 165 L 62 255 L 75 258 Z" stroke={s("leftLeg")} fill={f("leftLeg")} />
-      {/* Left calf */}
-      <path d="M 62 255 L 58 320 L 72 325 L 68 258" stroke={s("leftLeg")} fill="none" />
-      {/* Left foot */}
-      <path d="M 58 320 L 52 345 L 78 348 L 72 325 Z" stroke={s("leftFoot")} fill={f("leftFoot")} />
-      {/* Right thigh */}
-      <path d="M 118 165 L 128 165 L 138 255 L 125 258 Z" stroke={s("rightLeg")} fill={f("rightLeg")} />
-      {/* Right calf */}
-      <path d="M 138 255 L 142 320 L 128 325 L 132 258" stroke={s("rightLeg")} fill="none" />
-      {/* Right foot */}
-      <path d="M 142 320 L 148 345 L 122 348 L 128 325 Z" stroke={s("rightFoot")} fill={f("rightFoot")} />
-    </svg>
-  );
-}
 
 export default function SimpleDashboard() {
   const navigate = useNavigate();
@@ -128,6 +78,37 @@ export default function SimpleDashboard() {
   const handleStartSession = () => navigate(nextRoute);
   const handleModeClick = (route) => navigate(route);
 
+  const recentSessions = getRecentSessions(5);
+  const estimatedMins = getEstimatedNextSessionMinutes(nextMode);
+  const motivationalMsg = getMotivationalMessage(progress);
+  const currentMilestone = getCurrentMilestone(progress);
+  const nextMilestone = getNextMilestone(progress);
+  const greeting = getGreeting();
+
+  const [modeSearch, setModeSearch] = useState("");
+  const [clock, setClock] = useState(() => formatTimeStamp());
+  const [sessionDetail, setSessionDetail] = useState(null);
+
+  useEffect(() => {
+    const t = setInterval(() => setClock(formatTimeStamp()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const filteredModes = modeSearch
+    ? MODES.filter((m) => m.label.toLowerCase().includes(modeSearch.toLowerCase()))
+    : MODES;
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === " " && !e.target.matches("input, textarea")) {
+        e.preventDefault();
+        navigate(nextRoute);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [nextRoute, navigate]);
+
   const bgClass = dark ? "bg-gray-900 text-gray-100" : "bg-gradient-to-br from-para-bg via-white to-para-teal/5";
   const cardClass = dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200 shadow-md";
   const mutedClass = dark ? "text-gray-400" : "text-gray-600";
@@ -141,19 +122,22 @@ export default function SimpleDashboard() {
 
   return (
     <div className={`min-h-screen ${bgClass} flex flex-col transition-colors`}>
-      <header className={`flex items-center justify-between px-6 py-3 border-b ${dark ? "border-gray-700" : "border-gray-200"} flex-shrink-0`}>
+      <header className={`flex items-center justify-between px-6 py-3 border-b ${dark ? "border-gray-700" : "border-gray-200"} flex-shrink-0 animate-fadeIn`}>
         <Link to="/dashboard/simple" className="flex items-center">
-          <img src={logo} alt="ParaTrain" className="h-8 object-contain dark:brightness-0 dark:invert opacity-90" />
+          <img src={logo} alt="ParaTrain" className="h-11 object-contain" />
         </Link>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium opacity-80">Dashboard</span>
-            <div className={`flex rounded-lg overflow-hidden border ${dark ? "border-gray-600 bg-gray-800" : "border-gray-200 bg-gray-50"}`}>
-              <button type="button" onClick={() => navigate("/dashboard")} className={`px-3 py-1.5 text-sm font-medium transition ${dark ? "text-gray-400 hover:bg-gray-700" : "text-gray-600 hover:bg-gray-100"}`}>
-                NORMAL
-              </button>
-              <button type="button" className="px-3 py-1.5 text-sm font-medium bg-para-teal text-white">SIMPLE</button>
-            </div>
+          <span className="text-sm font-medium tabular-nums opacity-90">{clock}</span>
+          <div
+            className={`relative flex w-[176px] rounded-xl p-1 cursor-pointer select-none border ${dark ? "border-gray-600 bg-gray-800" : "border-gray-200 bg-gray-100"}`}
+            onClick={() => navigate("/dashboard")}
+          >
+            <div
+              className="absolute top-1 left-1 h-8 w-[84px] rounded-lg bg-gradient-to-r from-para-teal to-para-teal-dark shadow-md transition-all duration-300 ease-out"
+              style={{ transform: "translateX(84px)" }}
+            />
+            <span className={`relative z-10 w-1/2 text-center text-sm font-medium py-1.5 ${dark ? "text-gray-400" : "text-gray-600"}`}>NORMAL</span>
+            <span className="relative z-10 w-1/2 text-center text-sm font-medium py-1.5 text-white">SIMPLE</span>
           </div>
           <button type="button" onClick={toggleTheme} className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:opacity-80" title={dark ? "Light mode" : "Dark mode"}>
             {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -166,17 +150,28 @@ export default function SimpleDashboard() {
       <div className="flex-1 p-6 md:p-8 grid grid-cols-12 gap-6 md:gap-8 min-h-0">
         {/* LEFT: Simulation Modes - larger */}
         <div className="col-span-12 md:col-span-3 flex flex-col gap-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider opacity-90 px-1">Simulation Modes</h2>
-          {MODES.map((mode) => {
-            const completed = sessionsCompleted > ORDER.indexOf(mode.id);
+          <h2 className="text-sm font-bold uppercase tracking-wider opacity-90 px-1 animate-fadeIn">Simulation Modes</h2>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search modes..."
+              value={modeSearch}
+              onChange={(e) => setModeSearch(e.target.value)}
+              className={`pl-9 pr-4 py-2 rounded-xl border text-sm w-full ${dark ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-white border-gray-200 text-gray-900"}`}
+            />
+          </div>
+          {filteredModes.map((mode, idx) => {
+            const completedToday = isModeCompletedToday(mode.id);
             return (
               <button
                 key={mode.id}
                 type="button"
                 onClick={() => handleModeClick(mode.route)}
-                className={`flex items-center gap-4 w-full p-5 rounded-2xl border-2 text-left transition ${cardClass} ${
-                  completed ? "border-green-500 ring-2 ring-green-500/30" : dark ? "border-gray-600 hover:border-para-teal" : "border-gray-200 hover:border-para-teal"
+                className={`flex items-center gap-4 w-full p-5 rounded-2xl border-2 text-left transition-all duration-300 hover:scale-[1.02] animate-fadeIn ${cardClass} ${
+                  completedToday ? "border-green-500 ring-2 ring-green-500/30" : dark ? "border-gray-600 hover:border-para-teal" : "border-gray-200 hover:border-para-teal"
                 }`}
+                style={{ animationDelay: `${idx * 80}ms` }}
               >
                 <img src={mode.image} alt={mode.label} className="w-20 h-20 object-cover rounded-xl flex-shrink-0" />
                 <span className="font-semibold text-base">{mode.label}</span>
@@ -188,7 +183,20 @@ export default function SimpleDashboard() {
         {/* CENTRE: Welcome, progress, figure, stats, Start Session */}
         <div className="col-span-12 md:col-span-6 flex flex-col items-center justify-start min-h-0">
           <div className="w-full mb-5">
-            <h1 className="text-2xl md:text-3xl font-bold mb-3">Welcome, {user}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-1">{greeting}, {user}</h1>
+            {motivationalMsg && (
+              <p className="text-sm text-para-teal mb-2">{motivationalMsg}</p>
+            )}
+            {(currentMilestone || nextMilestone) && (
+              <div className={`rounded-lg px-3 py-2 mb-3 text-sm ${dark ? "bg-gray-800/50" : "bg-para-teal/10"}`}>
+                {currentMilestone && <span>{currentMilestone.emoji} {currentMilestone.title}</span>}
+                {nextMilestone && nextMilestone.sessionsNeeded != null && (
+                  <span className={dark ? "text-gray-400" : "text-gray-600"}>
+                    {currentMilestone && " · "}{nextMilestone.sessionsNeeded} more until {nextMilestone.title}
+                  </span>
+                )}
+              </div>
+            )}
             <div className="h-4 w-full rounded-full overflow-hidden flex gap-1" style={{ background: dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)" }}>
               {progressSegments.map((seg, i) => (
                 <div
@@ -224,17 +232,42 @@ export default function SimpleDashboard() {
             ))}
 
             <div className="relative z-0 flex items-center justify-center">
-              <BodyFigure bodyCompleted={bodyCompleted} dark={dark} />
+              <BodyFigure bodyCompleted={bodyCompleted} dark={dark} className="w-full max-w-[300px] md:max-w-[360px] h-auto aspect-[240/420] flex-shrink-0 drop-shadow-xl" />
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleStartSession}
-            className="mt-6 px-12 py-4 rounded-2xl bg-para-teal text-white font-semibold hover:bg-para-teal-dark transition shadow-xl shadow-para-teal/20 text-lg"
-          >
-            Start Session
-          </button>
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={handleStartSession}
+              className="px-12 py-4 rounded-2xl bg-gradient-to-r from-para-teal to-para-teal-dark text-white font-semibold hover:from-para-teal-dark hover:to-para-navy transition-all duration-200 shadow-xl shadow-para-teal/20 text-lg hover:shadow-2xl hover:scale-[1.03] active:scale-[0.98]"
+            >
+              Start Session
+            </button>
+            <p className={`text-xs ${mutedClass}`}>~{estimatedMins} min · Press <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-600">Space</kbd> to start</p>
+          </div>
+
+          {/* Recent sessions - quick resume */}
+          {recentSessions.length > 0 && (
+            <div className={`mt-6 w-full rounded-xl border p-4 ${cardClass}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <History className="w-4 h-4 text-para-teal" />
+                <span className="text-sm font-medium">Recent Sessions</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {recentSessions.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setSessionDetail(s)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${dark ? "bg-gray-700/50 hover:bg-gray-600/50" : "bg-gray-100 hover:bg-gray-200"}`}
+                  >
+                    {s.label} · {formatSessionDate(s.date)} · {s.score}%
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* RIGHT: Doctor Connect, AI Report, utilities - larger */}
@@ -283,6 +316,50 @@ export default function SimpleDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Session detail modal */}
+      {sessionDetail && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setSessionDetail(null)} aria-hidden />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className={`${cardClass} rounded-2xl shadow-xl max-w-sm w-full p-6`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold mb-4">Session Details</h3>
+              <dl className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <dt className={mutedClass}>Simulation</dt>
+                  <dd className="font-medium">{sessionDetail.label}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className={mutedClass}>Date</dt>
+                  <dd className="font-medium">{formatSessionDate(sessionDetail.date)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className={mutedClass}>Time</dt>
+                  <dd className="font-medium">{sessionDetail.timeStamp || "—"}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className={mutedClass}>Duration</dt>
+                  <dd className="font-medium">{sessionDetail.durationMinutes || 5} min</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className={mutedClass}>Score</dt>
+                  <dd className="font-semibold text-para-teal">{sessionDetail.score}%</dd>
+                </div>
+              </dl>
+              <button
+                type="button"
+                onClick={() => setSessionDetail(null)}
+                className="mt-6 w-full py-2.5 rounded-xl bg-para-teal text-white font-medium hover:bg-para-teal-dark transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

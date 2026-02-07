@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, ArrowLeft } from "lucide-react";
+import { X, ArrowLeft, Check } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
 const SPECIALTIES = [
@@ -68,6 +68,7 @@ export default function Doctor() {
   const navigate = useNavigate();
   const { dark } = useTheme();
   const [selected, setSelected] = useState(null);
+  const [booked, setBooked] = useState(null);
 
   const bg = dark ? "bg-gray-900" : "bg-para-bg";
   const card = dark ? "bg-gray-800 border-gray-700 hover:border-para-teal" : "bg-white border-gray-200 hover:border-para-teal";
@@ -164,11 +165,43 @@ export default function Doctor() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => {
+                    setBooked(selected);
+                    setSelected(null);
+                  }}
                   className="flex-1 py-2 rounded-xl bg-para-teal text-white font-medium hover:bg-para-teal-dark"
                 >
                   Book Consultation
                 </button>
               </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Booking confirmation */}
+      {booked && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setBooked(null)} aria-hidden />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className={`${dark ? "bg-gray-800 border border-gray-700" : "bg-white"} rounded-2xl shadow-xl max-w-md w-full p-8 text-center`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
+              <h2 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"} mb-2`}>Booking Request Sent</h2>
+              <p className={`${dark ? "text-gray-400" : "text-gray-500"} mb-6`}>
+                Your consultation request for <strong>{booked.name}</strong> has been sent. You will receive a confirmation email shortly.
+              </p>
+              <button
+                type="button"
+                onClick={() => setBooked(null)}
+                className="w-full py-2.5 rounded-xl bg-para-teal text-white font-medium hover:bg-para-teal-dark"
+              >
+                Done
+              </button>
             </div>
           </div>
         </>

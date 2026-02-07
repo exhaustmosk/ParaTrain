@@ -4,9 +4,10 @@ import AuthLayout from "../components/AuthLayout";
 import { useAuth } from "../context/AuthContext";
 import { Stethoscope, Mail, Lock, Activity } from "lucide-react";
 
-export default function Login() {
+export default function Login({ doctor: isDoctor = false }) {
   const [searchParams] = useSearchParams();
-  const isDoctor = searchParams.get("admin") === "1";
+  const fromQuery = searchParams.get("admin") === "1";
+  const isDoctorLogin = isDoctor || fromQuery;
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -21,20 +22,21 @@ export default function Login() {
     e.preventDefault();
     setError("");
     const username = email.trim() || "";
-    if (login(username, password)) {
+    const expectedRole = isDoctorLogin ? "doctor" : "patient";
+    if (login(username, password, expectedRole)) {
       navigate("/dashboard", { replace: true });
       return;
     }
-    setError(isDoctor ? "Invalid credentials. For testing use username ABC and password ABC." : "Invalid credentials. For testing use username 123 and password 123.");
+    setError(isDoctorLogin ? "Invalid credentials. Use doctor login with username ABC and password ABC." : "Invalid credentials. Use patient login with username 123 and password 123.");
   };
 
-  const title = isDoctor ? "Doctor Login" : "Patient Login";
+  const title = isDoctorLogin ? "Doctor Login" : "Patient Login";
 
   return (
     <AuthLayout>
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-fadeIn">
         {/* Decorative medical accent line */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6 animate-fadeIn" style={{ animationDelay: "100ms" }}>
           <div className="flex items-center gap-2 text-para-teal/80">
             <Activity className="w-8 h-8" strokeWidth={1.5} />
             <span className="text-xs font-medium tracking-widest uppercase">Clinical Training</span>
@@ -42,9 +44,9 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="relative bg-white rounded-2xl shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+        <div className="relative bg-white rounded-2xl shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden animate-scaleIn">
           {/* Top accent strip */}
-          <div className="h-1.5 bg-gradient-to-r from-para-teal via-para-teal-light to-para-teal" />
+          <div className="h-1.5 bg-gradient-to-r from-para-teal via-para-teal-light to-para-navy" />
 
           <div className="p-8 md:p-10">
             {/* Icon and title */}
@@ -56,7 +58,7 @@ export default function Login() {
                 {title}
               </h2>
               <p className="text-sm text-gray-500 mt-1.5 text-center">
-                {isDoctor ? "Access the doctor dashboard" : "Continue your medical training journey"}
+                {isDoctorLogin ? "Access the doctor dashboard" : "Continue your medical training journey"}
               </p>
             </div>
 
@@ -96,7 +98,7 @@ export default function Login() {
               )}
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl bg-para-teal text-white font-semibold hover:bg-para-teal-dark focus:ring-2 focus:ring-para-teal focus:ring-offset-2 transition shadow-md hover:shadow-lg active:scale-[0.99]"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-para-teal to-para-teal-dark text-white font-semibold hover:from-para-teal-dark hover:to-para-navy focus:ring-2 focus:ring-para-teal focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
               >
                 Sign in
               </button>
@@ -104,10 +106,20 @@ export default function Login() {
 
 <p className="text-center text-gray-600 mt-6 text-sm">
               Don&apos;t have an account?{" "}
-              <Link to={isDoctor ? "/signup?doctor=1" : "/signup"} className="text-para-teal font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-para-teal/30 rounded">
+              <Link to={isDoctorLogin ? "/signup?doctor=1" : "/signup"} className="text-para-teal font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-para-teal/30 rounded">
                 Create account
               </Link>
             </p>
+            {!isDoctorLogin && (
+              <p className="text-center text-gray-500 mt-3 text-sm">
+                <Link to="/login/doctor" className="text-para-teal hover:underline">Doctor login</Link>
+              </p>
+            )}
+            {isDoctorLogin && (
+              <p className="text-center text-gray-500 mt-3 text-sm">
+                <Link to="/login" className="text-para-teal hover:underline">Patient login</Link>
+              </p>
+            )}
           </div>
         </div>
 

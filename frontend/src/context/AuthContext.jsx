@@ -20,11 +20,11 @@ export function AuthProvider({ children }) {
     if (r === "doctor" || r === "patient") setRole(r);
   }, []);
 
-  const login = (username, password) => {
+  const login = (username, password, expectedRole = null) => {
     const u = String(username).trim();
     const p = String(password).trim();
-    // Patient: 123 / 123
-    if (u === "123" && p === "123") {
+    // Patient: 123 / 123 - only if expectedRole is null or "patient"
+    if ((!expectedRole || expectedRole === "patient") && u === "123" && p === "123") {
       setIsAuthenticated(true);
       setUser(u);
       setRole("patient");
@@ -33,8 +33,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem(ROLE_KEY, "patient");
       return true;
     }
-    // Doctor: ABC / ABC
-    if (u === "ABC" && p === "ABC") {
+    // Doctor: ABC / ABC - only if expectedRole is "doctor"
+    if (expectedRole === "doctor" && u === "ABC" && p === "ABC") {
       setIsAuthenticated(true);
       setUser(u);
       setRole("doctor");

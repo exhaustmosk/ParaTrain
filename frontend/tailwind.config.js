@@ -26,6 +26,25 @@ module.exports = {
       backgroundImage: {
         "medical-pattern": "radial-gradient(circle at 20% 80%, rgba(0, 172, 216, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(14, 116, 144, 0.06) 0%, transparent 50%)",
       },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        slideIn: {
+          "0%": { opacity: "0", transform: "translateX(-12px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        scaleIn: {
+          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+      },
+      animation: {
+        fadeIn: "fadeIn 0.45s ease-out forwards",
+        slideIn: "slideIn 0.35s ease-out forwards",
+        scaleIn: "scaleIn 0.35s ease-out forwards",
+      },
     },
   },
   plugins: [],

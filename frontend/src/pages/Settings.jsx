@@ -1,21 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 
 const NOTIFICATIONS_KEY = "paratrain_notifications";
 const REMINDERS_KEY = "paratrain_reminders";
+const REMINDER_TIME_KEY = "paratrain_reminder_time";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { dark, toggleTheme } = useTheme();
+  const { role } = useAuth();
+  const isDoctor = role === "doctor";
   const [notifications, setNotifications] = useState(true);
   const [reminders, setReminders] = useState(true);
+  const [reminderTime, setReminderTime] = useState("09:00");
 
   useEffect(() => {
     const n = localStorage.getItem(NOTIFICATIONS_KEY);
     const r = localStorage.getItem(REMINDERS_KEY);
+    const t = localStorage.getItem(REMINDER_TIME_KEY);
     if (n !== null) setNotifications(n === "true");
     if (r !== null) setReminders(r === "true");
+    if (t) setReminderTime(t);
   }, []);
 
   const handleNotifications = (value) => {
@@ -26,6 +33,11 @@ export default function Settings() {
   const handleReminders = (value) => {
     setReminders(value);
     localStorage.setItem(REMINDERS_KEY, String(value));
+  };
+
+  const handleReminderTime = (value) => {
+    setReminderTime(value);
+    localStorage.setItem(REMINDER_TIME_KEY, value);
   };
 
   const bg = dark ? "bg-gray-900" : "bg-para-bg";
@@ -76,7 +88,7 @@ export default function Settings() {
             <div className="flex items-center justify-between px-6 py-5">
               <div>
                 <p className={`font-medium ${text}`}>Notifications</p>
-                <p className={`text-sm ${muted}`}>Receive in-app notifications for sessions and reports</p>
+                <p className={`text-sm ${muted}`}>{isDoctor ? "Receive notifications for new appointments and patient updates" : "Receive in-app notifications for sessions and reports"}</p>
               </div>
               <button
                 type="button"
@@ -95,7 +107,8 @@ export default function Settings() {
               </button>
             </div>
 
-            {/* Session reminders */}
+            {/* Session reminders - patients only */}
+            {!isDoctor && (
             <div className="flex items-center justify-between px-6 py-5">
               <div>
                 <p className={`font-medium ${text}`}>Session reminders</p>
@@ -117,6 +130,34 @@ export default function Settings() {
                 />
               </button>
             </div>
+            )}
+
+            {/* Reminder time - patients only, when reminders on */}
+            {!isDoctor && reminders && (
+              <div className="flex items-center justify-between px-6 py-5">
+                <div>
+                  <p className={`font-medium ${text}`}>Reminder time</p>
+                  <p className={`text-sm ${muted}`}>When to receive your daily session reminder</p>
+                </div>
+                <input
+                  type="time"
+                  value={reminderTime}
+                  onChange={(e) => handleReminderTime(e.target.value)}
+                  className={`px-4 py-2 rounded-xl border text-sm ${dark ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-white border-gray-200 text-gray-900"}`}
+                />
+              </div>
+            )}
+
+            {/* Accessibility - patients only */}
+            {!isDoctor && (
+            <div className="flex items-center justify-between px-6 py-5">
+              <div>
+                <p className={`font-medium ${text}`}>Reduce motion</p>
+                <p className={`text-sm ${muted}`}>Minimize animations for sensitivity</p>
+              </div>
+              <span className={`text-sm ${muted}`}>Coming soon</span>
+            </div>
+            )}
           </div>
         </div>
 

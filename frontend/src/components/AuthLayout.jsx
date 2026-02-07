@@ -5,13 +5,13 @@ import logo from "../assets/ParaTrainLogo.png";
 export default function AuthLayout({ children, showNav = true }) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const isLogin = location.pathname === "/login" || location.pathname === "/";
-  const isDoctorTab = searchParams.get("admin") === "1";
+  const isLogin = location.pathname === "/login" || location.pathname === "/" || location.pathname === "/login/doctor";
+  const isDoctorTab = searchParams.get("admin") === "1" || location.pathname === "/login/doctor";
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-para-bg via-white to-para-teal/5 bg-medical-pattern">
       {/* Medical-themed header */}
-      <header className="bg-gradient-to-r from-para-navy via-para-teal-dark to-para-teal text-white shadow-lg">
+      <header className="bg-gradient-to-r from-para-navy via-para-teal-dark to-para-teal text-white shadow-xl">
         <div className="text-center py-5">
           <img src={logo} alt="ParaTrain" className="h-12 md:h-14 mx-auto object-contain" />
           <p className="text-sm text-white/90 mt-1.5 font-medium">
@@ -32,7 +32,7 @@ export default function AuthLayout({ children, showNav = true }) {
               Patient Login
             </Link>
             <Link
-              to="/login?admin=1"
+              to="/login/doctor"
               className={`font-medium transition ${
                 isLogin && isDoctorTab ? "text-para-teal border-b-2 border-para-teal" : "text-gray-600 hover:text-para-teal"
               }`}

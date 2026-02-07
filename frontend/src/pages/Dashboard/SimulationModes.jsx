@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, Star, Play, ArrowLeft } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
 
 import armsImg from "../../assets/arms.png";
 import wristsImg from "../../assets/wrists.png";
@@ -44,14 +45,18 @@ const simulations = [
 
 function SimulationModes() {
   const navigate = useNavigate();
+  const { dark } = useTheme();
+  const bg = dark ? "bg-gray-900" : "bg-[#F7FAFC]";
+  const text = dark ? "text-gray-100" : "text-gray-900";
+  const muted = dark ? "text-gray-400" : "text-gray-500";
 
   return (
-    <div className="min-h-screen bg-[#F7FAFC] p-8">
+    <div className={`min-h-screen ${bg} p-8 transition-colors`}>
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => navigate("/dashboard")}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          className={`flex items-center gap-2 ${dark ? "text-gray-400 hover:text-gray-200" : "text-gray-600 hover:text-gray-900"}`}
         >
           <ArrowLeft size={20} />
           Back to Dashboard
@@ -63,19 +68,19 @@ function SimulationModes() {
           <FileText className="text-[#00ACD8]" size={22} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Simulation Modes</h1>
-          <p className="text-sm text-gray-500">All available simulation modes in one place</p>
+          <h1 className={`text-2xl font-bold ${text}`}>Simulation Modes</h1>
+          <p className={`text-sm ${muted}`}>All available simulation modes in one place</p>
         </div>
       </div>
 
       {/* Row-based layout: one row per simulation */}
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      <div className={`${dark ? "bg-gray-800 border-gray-700" : "bg-white"} rounded-xl border shadow-sm overflow-hidden`}>
         {simulations.map((sim, i) => (
           <div
             key={sim.title}
             className={`flex items-center gap-6 p-6 ${
-              i < simulations.length - 1 ? "border-b border-gray-100" : ""
-            } hover:bg-gray-50/50 transition`}
+              i < simulations.length - 1 ? (dark ? "border-b border-gray-700" : "border-b border-gray-100") : ""
+            } ${dark ? "hover:bg-gray-700/50" : "hover:bg-gray-50/50"} transition`}
           >
             {/* Thumbnail */}
             <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
@@ -88,10 +93,10 @@ function SimulationModes() {
 
             {/* Details */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg text-gray-900 mb-1">
+              <h3 className={`font-semibold text-lg ${text} mb-1`}>
                 {sim.title}
               </h3>
-              <p className="text-sm text-gray-500 mb-2">{sim.desc}</p>
+              <p className={`text-sm ${muted} mb-2`}>{sim.desc}</p>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   {Array.from({ length: 5 }).map((_, idx) => (
@@ -106,7 +111,7 @@ function SimulationModes() {
                     />
                   ))}
                 </div>
-                <span className="text-sm text-gray-500">{sim.modules}</span>
+                <span className={`text-sm ${muted}`}>{sim.modules}</span>
               </div>
             </div>
 

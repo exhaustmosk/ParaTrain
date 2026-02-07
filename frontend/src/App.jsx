@@ -35,6 +35,7 @@ export default function App() {
           {/* AUTH ROUTES (no sidebar) */}
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/login/doctor" element={<Login doctor />} />
           <Route path="/signup" element={<Signup />} />
 
           {/* PROTECTED DASHBOARD ROUTES */}
