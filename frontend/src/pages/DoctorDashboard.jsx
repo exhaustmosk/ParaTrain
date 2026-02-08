@@ -96,7 +96,10 @@ export default function DoctorDashboard() {
     },
   ];
 
+  // Colors & Styles
   const bgMain = dark ? "bg-gray-900" : "bg-gradient-to-br from-slate-50 via-white to-blue-50/30";
+  // Added global text color here to ensure defaults are correct
+  const textGlobal = dark ? "text-gray-100" : "text-gray-900";
   const cardBg = dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100 shadow-sm";
   const textPrimary = dark ? "text-gray-100" : "text-gray-900";
   const textMuted = dark ? "text-gray-400" : "text-gray-500";
@@ -173,7 +176,7 @@ export default function DoctorDashboard() {
   };
 
   return (
-    <div className={`min-h-screen ${bgMain} transition-colors`}>
+    <div className={`min-h-screen ${bgMain} ${textGlobal} transition-colors`}>
       <div className="p-6 md:p-8">
         {/* Header */}
         <div className="mb-8 animate-fadeIn">
@@ -385,7 +388,7 @@ export default function DoctorDashboard() {
             <Select label="Training Focus" name="training" options={["Arms", "Wrists", "Legs", "Full Body"]} dark={dark} />
             <Textarea label="Notes" name="notes" placeholder="Optional notes..." dark={dark} />
             <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setShowAddPatient(false)} className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 font-medium">
+              <button type="button" onClick={() => setShowAddPatient(false)} className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 Cancel
               </button>
               <button type="submit" className="flex-1 py-2.5 rounded-xl bg-para-teal text-white font-medium hover:bg-para-teal-dark">
@@ -438,7 +441,7 @@ export default function DoctorDashboard() {
             <Input label="Time" name="time" type="time" defaultValue="10:00" dark={dark} />
             <Select label="Type" name="type" options={["Initial", "Follow-up", "Checkup", "Consultation"]} dark={dark} />
             <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setShowAddAppointment(false)} className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 font-medium">
+              <button type="button" onClick={() => setShowAddAppointment(false)} className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 Cancel
               </button>
               <button type="submit" className="flex-1 py-2.5 rounded-xl bg-para-teal text-white font-medium hover:bg-para-teal-dark">
@@ -524,7 +527,7 @@ export default function DoctorDashboard() {
             </p>
             <Input label="Amount ($)" name="amount" type="number" defaultValue="150" min="0" step="10" dark={dark} />
             <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setShowCompleteModal(null)} className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 font-medium">
+              <button type="button" onClick={() => setShowCompleteModal(null)} className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 Cancel
               </button>
               <button type="submit" className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700">
@@ -539,17 +542,23 @@ export default function DoctorDashboard() {
 }
 
 function Modal({ title, onClose, children, dark }) {
+  // Added text-gray-100 to the container so all child text inherits white in dark mode
+  const modalClass = dark ? "bg-gray-800 border border-gray-700 text-gray-100" : "bg-white text-gray-900";
+  const headerBorder = dark ? "border-gray-700" : "border-gray-100";
+  const titleColor = dark ? "text-white" : "text-gray-900";
+  const closeBtnClass = dark ? "hover:bg-gray-700 text-gray-400 hover:text-gray-100" : "hover:bg-gray-100 text-gray-500 hover:text-gray-700";
+
   return (
     <>
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
-          className={`${dark ? "bg-gray-800 border border-gray-700" : "bg-white"} rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col`}
+          className={`${modalClass} rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className={`px-6 py-4 border-b ${dark ? "border-gray-700" : "border-gray-100"} flex justify-between items-center`}>
-            <h2 className={`text-lg font-semibold ${dark ? "text-white" : "text-gray-900"}`}>{title}</h2>
-            <button type="button" onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Close">
+          <div className={`px-6 py-4 border-b ${headerBorder} flex justify-between items-center`}>
+            <h2 className={`text-lg font-semibold ${titleColor}`}>{title}</h2>
+            <button type="button" onClick={onClose} className={`p-2 rounded-lg transition-colors ${closeBtnClass}`} aria-label="Close">
               <X className="w-5 h-5" />
             </button>
           </div>

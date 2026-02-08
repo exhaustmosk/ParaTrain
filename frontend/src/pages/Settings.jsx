@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { User } from "lucide-react";
 
 const NOTIFICATIONS_KEY = "paratrain_notifications";
 const REMINDERS_KEY = "paratrain_reminders";
@@ -61,6 +62,26 @@ export default function Settings() {
 
         <div className={`${card} rounded-2xl border shadow-sm overflow-hidden`}>
           <div className={`divide-y ${dark ? "divide-gray-700" : "divide-gray-100"}`}>
+            {/* Profile & Biodata - patients only */}
+            {!isDoctor && (
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard/biodata")}
+                className={`w-full flex items-center justify-between px-6 py-5 text-left transition ${dark ? "hover:bg-gray-700/50" : "hover:bg-gray-50/80"}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-para-teal/10 flex items-center justify-center">
+                    <User className="w-5 h-5 text-para-teal" />
+                  </div>
+                  <div>
+                    <p className={`font-medium ${text}`}>Profile & biodata</p>
+                    <p className={`text-sm ${muted}`}>Edit your health profile and personal details</p>
+                  </div>
+                </div>
+                <span className={`text-sm ${muted}`}>Edit →</span>
+              </button>
+            )}
+
             {/* Dark mode */}
             <div className="flex items-center justify-between px-6 py-5">
               <div>

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
+import { setPendingBiodata } from "../utils/biodataStorage";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isDoctor = searchParams.get("doctor") === "1";
   const [name, setName] = useState("");
@@ -11,6 +13,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,9 +22,11 @@ export default function Signup() {
       setMessage("Passwords do not match.");
       return;
     }
+    if (!isDoctor) setPendingBiodata();
+    setSignupSuccess(true);
     setMessage(isDoctor
       ? "OTP flow will be connected when backend is ready. You can log in with ABC / ABC for now."
-      : "OTP flow will be connected when backend is ready. You can log in with 123 / 123 for now.");
+      : "Account created. When you log in, you'll be asked to complete your health profile.");
   };
 
   return (
@@ -74,12 +79,24 @@ export default function Signup() {
                 {message}
               </p>
             )}
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-para-teal to-para-teal-dark text-white font-semibold hover:from-para-teal-dark hover:to-para-navy transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
-            >
-              Send OTP
-            </button>
+            {signupSuccess ? (
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => navigate(isDoctor ? "/login/doctor" : "/login")}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-para-teal to-para-teal-dark text-white font-semibold hover:from-para-teal-dark hover:to-para-navy transition-all duration-200 shadow-lg"
+                >
+                  Go to login
+                </button>
+              </div>
+            ) : (
+              <button
+                type="submit"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-para-teal to-para-teal-dark text-white font-semibold hover:from-para-teal-dark hover:to-para-navy transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
+              >
+                Send OTP
+              </button>
+            )}
           </form>
           <p className="text-gray-600 mt-5 text-sm">
             Already have an account?{" "}
