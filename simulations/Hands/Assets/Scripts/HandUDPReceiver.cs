@@ -12,26 +12,27 @@ public class HandUDPReceiver : MonoBehaviour
     public int port = 5005; // Must match Python
 
     [Header("Prefabs")]
-    public GameObject palmPrefab;    // For wrist/palm
-    public GameObject fingerPrefab;  // For fingers
+    public GameObject palmPrefab;    // Wrist / palm joint
+    public GameObject fingerPrefab;  // Finger joints
 
-    private List<GameObject> joints = new List<GameObject>();
-    private List<Vector3> latestPositions = new List<Vector3>();
+    [Header("Hand Settings")]
+    public float scale = 2.0f;
+    public Transform wristRoot;
 
-    public float scale = 2.0f; // Optional scale for Unity units
-    public Transform wristRoot; // Optional root transform
+    private List<GameObject> joints = new List<GameObject>();      // 21 joint objects
+    private List<Vector3> latestPositions = new List<Vector3>();  // 21 joint positions
 
     void Start()
     {
         if (wristRoot == null)
             wristRoot = this.transform;
 
-        // Initialize 21 joints with different prefabs
+        // Create 21 joints
         for (int i = 0; i < 21; i++)
         {
             GameObject joint;
 
-            if (i == 0) // wrist/palm
+            if (i == 0)
                 joint = Instantiate(palmPrefab, Vector3.zero, Quaternion.identity, wristRoot);
             else
                 joint = Instantiate(fingerPrefab, Vector3.zero, Quaternion.identity, wristRoot);
@@ -40,7 +41,7 @@ public class HandUDPReceiver : MonoBehaviour
             latestPositions.Add(Vector3.zero);
         }
 
-        // Start UDP thread
+        // Start UDP receiver thread
         receiveThread = new Thread(ReceiveData);
         receiveThread.IsBackground = true;
         receiveThread.Start();
@@ -66,8 +67,13 @@ public class HandUDPReceiver : MonoBehaviour
                 {
                     for (int i = 0; i < 21; i++)
                     {
-                        Vector3 pos = new Vector3(landmarks[i].x, landmarks[i].y, landmarks[i].z);
+                        Vector3 pos = new Vector3(
+                            landmarks[i].x,
+                            landmarks[i].y,
+                            landmarks[i].z
+                        );
 
+                        // Safety against NaNs
                         if (float.IsNaN(pos.x) || float.IsNaN(pos.y) || float.IsNaN(pos.z))
                             pos = Vector3.zero;
 
@@ -93,6 +99,20 @@ public class HandUDPReceiver : MonoBehaviour
         }
     }
 
+    // --------------------------------------------------
+    // 🔑 HELPER METHOD (FOR POSE EVALUATION)
+    // --------------------------------------------------
+    public Vector3 GetJointLocalPosition(int index)
+    {
+        if (index < 0 || index >= joints.Count)
+            return Vector3.zero;
+
+        return joints[index].transform.localPosition;
+    }
+
+    // --------------------------------------------------
+    // DATA STRUCTS
+    // --------------------------------------------------
     [System.Serializable]
     public class HandLandmark
     {
@@ -121,7 +141,14 @@ public class HandUDPReceiver : MonoBehaviour
     {
         if (receiveThread != null)
             receiveThread.Abort();
+
         if (client != null)
             client.Close();
     }
+
+    public Vector3[] GetCurrentHand()
+    {
+        return latestPositions.ToArray();
+    }
+
 }
