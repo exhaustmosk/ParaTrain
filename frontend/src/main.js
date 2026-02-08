@@ -15,6 +15,8 @@ const createWindow = () => {
     autoHideMenuBar: true,      // Hides the "File Edit View" menu bar for a cleaner app look
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      // Allow renderer to reach local backend (127.0.0.1:5000); otherwise Electron blocks it
+      webSecurity: false,
     },
   });
 

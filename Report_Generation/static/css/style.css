@@ -1,0 +1,141 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f3f4f6;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  color: #374151;
+}
+
+.report-container {
+  width: 8.5in;
+  height: 11in;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  padding: 2.5rem 3.5rem;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  position: relative;
+}
+
+/* Header */
+.report-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.logo-icon {
+  background-color: #00B9F1;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.header-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  margin: 0.5rem 0;
+}
+
+.header-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.header-line {
+  height: 2px;
+  background-color: #00B9F1;
+}
+
+.line-1 { width: 150px; }
+.line-2 { width: 130px; }
+
+/* Main Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin-top: 2rem;
+}
+
+.info-card {
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  height: fit-content;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.patient-info p {
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+}
+
+.patient-info strong {
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 3.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Signature */
+.signature-section {
+  position: absolute;
+  bottom: 3.5rem;
+  left: 3.5rem;
+}
+
+.signature-line {
+  border-top: 1px solid #9ca3af;
+  width: 250px;
+  margin-bottom: 0.5rem;
+}
+
+.signature-section p {
+  margin: 0.1rem 0;
+  font-size: 0.8rem;
+}
+
+.signature-section .doctor-name {
+  font-weight: 500;
+}
+
+.signature-section .doctor-title {
+  color: #6b7280;
+}

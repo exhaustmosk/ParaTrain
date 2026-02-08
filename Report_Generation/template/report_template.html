@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hospital Report — A4</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --accent: #00A8D8;
+    --muted: #F6F8F9;
+    --text-dark: #2F3A45;
+    --soft: #E7ECEF;
+    --page-border: #0f0f0f;
+    --sheet-padding-vertical: 20mm;
+    --sheet-padding-horizontal: 18mm;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  html,body { height:100%; background:#f3f5f7; color:#222; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; }
+  .page-frame { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; flex-direction: column; }
+  .sheet { width:210mm; height:297mm; background:#fff; border:8px solid var(--page-border); box-shadow:0 14px 40px rgba(12,18,25,0.12); padding:var(--sheet-padding-vertical) var(--sheet-padding-horizontal); overflow:hidden; display:block; }
+  .page { width:100%; height:100%; display:block; }
+  .header { text-align:center; margin-bottom:14px; }
+  .logo-img { display:block; margin:0 auto; width:200px; height:auto; object-fit:contain; }
+  .thin-divider { height:1px; background:var(--soft); margin:20px 0 28px; border:none; }
+  .top-cards { display:flex; gap:28px; align-items:flex-start; margin-bottom:26px; flex-wrap: nowrap; }
+  .card { background:var(--muted); border-radius:12px; padding:20px; box-shadow:0 2px 0 rgba(16,24,32,0.02); border:1px solid rgba(16,24,32,0.04); min-height:210px; }
+  .patient-card { width:48%; }
+  .recovery-card { width:52%; }
+  .card h3{ font-size:18px; color:var(--text-dark); margin-bottom:12px; font-weight:600; border-bottom:1px solid rgba(0,0,0,0.06); padding-bottom:10px; }
+  .patient-list { margin-top:10px; list-style:none; color:#111; font-size:15px; line-height:2.2; }
+  .patient-list li strong{ display:inline-block; width:120px; font-weight:600; color:#0F1720; }
+  .chart-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start; }
+  #recoveryChart { width:100% !important; height:200px !important; }
+  .section { margin-top:28px; margin-bottom:18px; }
+  .section h3{ font-size:18px; color:var(--text-dark); margin-bottom:18px; font-weight:600; border-bottom:1px solid rgba(0,0,0,0.06); padding-bottom:12px; }
+  .section .content-line { min-height:110px; border-bottom:1px solid #EEF3F5; padding:10px; }
+  .suggestions .content-line { min-height:130px; }
+  .footer { margin-top:56px; color:#6B7280; font-size:13px; }
+  .doctor-name { color:#0F1720; font-weight:600; margin-bottom:6px; display:inline-block; border-bottom:1px solid rgba(16,24,32,0.08); padding-bottom:6px; }
+  #print-btn { margin-bottom:16px; padding:10px 24px; font-size:16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; }
+  .edit-controls { margin-top:12px; display:flex; gap:12px; }
+  .edit-controls button { padding:6px 14px; border:none; border-radius:4px; cursor:pointer; color:#fff; }
+  #edit-btn { background:#FFAA00; }
+  #save-btn { background:#00A8D8; }
+  @page { size:A4; margin:10mm; }
+  @media print { html,body{background:#fff} .page-frame{padding:0} .sheet{width:auto;height:auto;border:none;box-shadow:none;padding:0;margin:0} .page{padding:20mm} }
+</style>
+</head>
+<body>
+<button id="print-btn">Print / Save as PDF</button>
+<div class="page-frame">
+  <div class="sheet" role="document" aria-label="Hospital report A4 sheet">
+    <div class="page">
+      <header class="header"><img src="logo.png" alt="Hospital logo" class="logo-img" /></header>
+      <hr class="thin-divider" />
+      <section class="top-cards">
+        <aside class="card patient-card">
+          <h3>Patient Information</h3>
+          <ul class="patient-list">
+            <li><strong>Name:</strong> <span id="patient-name">Loading...</span></li>
+            <li><strong>Age:</strong> <span id="patient-age">Loading...</span></li>
+            <li><strong>Patient ID:</strong> <span id="patient-id">Loading...</span></li>
+            <li><strong>Diagnosis:</strong> <span id="patient-diagnosis">Loading...</span></li>
+            <li><strong>Physician:</strong> <span id="physician">Dr. Wizard Flame</span></li>
+          </ul>
+        </aside>
+        <section class="card recovery-card">
+          <h3>Recovery Progress</h3>
+          <div class="chart-wrap">
+            <canvas id="recoveryChart"></canvas>
+            <div style="font-size:13px;color:var(--accent);margin-top:8px;">● Left Hits ● Right Hits ● Accuracy (%)</div>
+          </div>
+        </section>
+      </section>
+
+      <!-- AI Report Sections -->
+      <section class="section test-results">
+        <h3>Test Results</h3>
+        <div id="ai-test-results" class="content-line" contenteditable="false"><em>Waiting for AI analysis...</em></div>
+      </section>
+      <section class="section suggestions">
+        <h3>Suggestions for Improvement</h3>
+        <div id="ai-suggestions" class="content-line" contenteditable="false"><em>Waiting for AI suggestions...</em></div>
+      </section>
+
+      <!-- Edit/Save Buttons -->
+      <div class="edit-controls">
+        <button id="edit-btn">Edit</button>
+        <button id="save-btn" disabled>Save</button>
+      </div>
+
+      <footer class="footer">
+        <div class="doctor-name">Dr. Wizard Flame</div>
+        <div>Cardiology Department, Healthcare Center</div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+let recoveryChart;
+
+async function loadReport() {
+  try {
+    // Patient Info
+    const resPatient = await fetch("http://localhost:5000/api/patient");
+    const patient = await resPatient.json();
+    if(!patient.error){
+      document.getElementById("patient-name").textContent = patient.name || "—";
+      document.getElementById("patient-age").textContent = patient.age || "—";
+      document.getElementById("patient-id").textContent = patient.id || "—";
+      document.getElementById("patient-diagnosis").textContent = patient.diagnosis || "—";
+    }
+
+    // AI Report
+    const resAI = await fetch("http://localhost:5000/api/ai-report", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({prompt:"Generate AI report for patient"})
+    });
+    const dataAI = await resAI.json();
+    document.getElementById("ai-test-results").innerHTML = dataAI.testResults || "<em>No results</em>";
+    document.getElementById("ai-suggestions").innerHTML = dataAI.suggestions || "<em>No suggestions</em>";
+
+    // Sensor Data / Chart
+    const sensorRes = await fetch("http://localhost:5000/api/sensor-metadata");
+    let sensorData = [];
+    try { sensorData = await sensorRes.json(); } catch{}
+    const labels = sensorData.length ? sensorData.map((_,i)=>`Session ${i+1}`) : ["S1","S2","S3","S4","S5"];
+    const leftHits = sensorData.length ? sensorData.map(d=>d.left_hit) : [10,12,15,20,18];
+    const rightHits = sensorData.length ? sensorData.map(d=>d.right_hit) : [8,14,13,17,19];
+    const accuracy = sensorData.length ? sensorData.map(d=>d.accuracy) : [75,82,88,91,94];
+
+    const ctx = document.getElementById("recoveryChart").getContext("2d");
+    if(recoveryChart) recoveryChart.destroy();
+    recoveryChart = new Chart(ctx, {
+      type:"line",
+      data:{
+        labels,
+        datasets:[
+          {label:"Left Hits", data:leftHits, borderColor:"#00A8D8", backgroundColor:"rgba(0,168,216,0.08)", fill:true, tension:0.3, pointRadius:5},
+          {label:"Right Hits", data:rightHits, borderColor:"#FF6B6B", backgroundColor:"rgba(255,107,107,0.08)", fill:true, tension:0.3, pointRadius:5},
+          {label:"Accuracy (%)", data:accuracy, borderColor:"#6BCB77", backgroundColor:"rgba(107,203,119,0.08)", fill:true, tension:0.3, pointRadius:5}
+        ]
+      },
+      options:{
+        responsive:false,
+        maintainAspectRatio:false,
+        plugins:{ legend:{ display:true } },
+        scales:{
+          y:{ beginAtZero:true, max:100, grid:{color:"rgba(0,0,0,0.04)"}, ticks:{color:"#6B7280"} },
+          x:{ grid:{display:false}, ticks:{color:"#6B7280"} }
+        }
+      }
+    });
+
+  } catch(err){
+    console.error("❌ Error loading report:", err);
+  }
+}
+
+// PDF Export
+document.getElementById("print-btn").addEventListener("click",()=>{
+  const element = document.querySelector(".sheet");
+  html2pdf().set({
+    margin: [0.5,0.5,0.5,0.5],
+    filename:`Hospital_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+    image:{ type:"jpeg", quality:0.98 },
+    html2canvas:{ scale:2, scrollY:0 },
+    jsPDF:{ unit:"mm", format:"a4", orientation:"portrait" }
+  }).from(element).save();
+});
+
+// Edit/Save functionality
+const editBtn = document.getElementById("edit-btn");
+const saveBtn = document.getElementById("save-btn");
+const testDiv = document.getElementById("ai-test-results");
+const suggestDiv = document.getElementById("ai-suggestions");
+
+editBtn.addEventListener("click", () => {
+  testDiv.contentEditable = "true";
+  suggestDiv.contentEditable = "true";
+  testDiv.focus();
+  editBtn.disabled = true;
+  saveBtn.disabled = false;
+  testDiv.style.border = "1px dashed #00A8D8";
+  suggestDiv.style.border = "1px dashed #00A8D8";
+});
+
+saveBtn.addEventListener("click", () => {
+  testDiv.contentEditable = "false";
+  suggestDiv.contentEditable = "false";
+  editBtn.disabled = false;
+  saveBtn.disabled = true;
+  testDiv.style.border = "none";
+  suggestDiv.style.border = "none";
+  alert("Changes saved locally! You can now print the report.");
+});
+
+window.addEventListener("DOMContentLoaded", loadReport);
+</script>
+</body>
+</html>

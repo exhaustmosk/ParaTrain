@@ -1,0 +1,15 @@
+{
+  "name": "report_generation",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.75.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.4",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "node-fetch": "^3.3.2",
+    "pdfkit": "^0.17.2",
+    "puppeteer": "^24.24.1"
+  }
+}
