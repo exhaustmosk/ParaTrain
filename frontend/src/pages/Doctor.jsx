@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, ArrowLeft, Check } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { isBiodataComplete } from "../utils/biodataStorage";
 
 const SPECIALTIES = [
   "General Physician",
@@ -69,6 +70,7 @@ export default function Doctor() {
   const { dark } = useTheme();
   const [selected, setSelected] = useState(null);
   const [booked, setBooked] = useState(null);
+  const [showBiodataPrompt, setShowBiodataPrompt] = useState(false);
 
   const bg = dark ? "bg-gray-900" : "bg-para-bg";
   const card = dark ? "bg-gray-800 border-gray-700 hover:border-para-teal" : "bg-white border-gray-200 hover:border-para-teal";
@@ -132,7 +134,7 @@ export default function Doctor() {
                 <button
                   type="button"
                   onClick={() => setSelected(null)}
-                  className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                  className={`p-2 rounded-lg transition ${dark ? "hover:bg-gray-600 text-gray-400 hover:text-gray-200" : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"}`}
                   aria-label="Close"
                 >
                   <X className="w-5 h-5" />
@@ -140,7 +142,7 @@ export default function Doctor() {
               </div>
               <div className="p-6 overflow-y-auto flex-1">
                 <p className={`text-sm mb-4 ${dark ? "text-gray-300" : "text-gray-600"}`}>{selected.bio}</p>
-                <dl className="space-y-2 text-sm">
+                <dl className={`space-y-2 text-sm ${text}`}>
                   <div className="flex justify-between">
                     <dt className={muted}>Experience</dt>
                     <dd className="font-medium">{selected.experience}</dd>
@@ -166,12 +168,54 @@ export default function Doctor() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (!isBiodataComplete()) {
+                      setShowBiodataPrompt(true);
+                      return;
+                    }
                     setBooked(selected);
                     setSelected(null);
                   }}
                   className="flex-1 py-2 rounded-xl bg-para-teal text-white font-medium hover:bg-para-teal-dark"
                 >
                   Book Consultation
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Biodata incomplete prompt */}
+      {showBiodataPrompt && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowBiodataPrompt(false)} aria-hidden />
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <div
+              className={`${dark ? "bg-gray-800 border border-gray-700" : "bg-white"} rounded-2xl shadow-xl max-w-sm w-full p-6`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className={`text-lg font-semibold mb-2 ${text}`}>Profile incomplete</h3>
+              <p className={`text-sm ${muted} mb-6`}>
+                Please complete all fields in your health profile before booking a consultation. You can do this in Settings or by clicking below.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowBiodataPrompt(false)}
+                  className={`flex-1 py-2.5 rounded-xl border font-medium transition ${dark ? "border-gray-600 text-gray-200 hover:bg-gray-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowBiodataPrompt(false);
+                    setSelected(null);
+                    navigate("/dashboard/biodata?from=doctor");
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-para-teal text-white font-medium hover:bg-para-teal-dark"
+                >
+                  Complete profile
                 </button>
               </div>
             </div>
@@ -192,8 +236,8 @@ export default function Doctor() {
                 <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h2 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"} mb-2`}>Booking Request Sent</h2>
-              <p className={`${dark ? "text-gray-400" : "text-gray-500"} mb-6`}>
-                Your consultation request for <strong>{booked.name}</strong> has been sent. You will receive a confirmation email shortly.
+              <p className={`${dark ? "text-gray-300" : "text-gray-500"} mb-6`}>
+                Your consultation request for <strong className={dark ? "text-gray-100" : "text-gray-900"}>{booked.name}</strong> has been sent. You will receive a confirmation email shortly.
               </p>
               <button
                 type="button"
