@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { User } from "lucide-react";
+import { User, Calendar } from "lucide-react";
 
 const NOTIFICATIONS_KEY = "paratrain_notifications";
 const REMINDERS_KEY = "paratrain_reminders";
@@ -16,6 +16,15 @@ export default function Settings() {
   const [notifications, setNotifications] = useState(true);
   const [reminders, setReminders] = useState(true);
   const [reminderTime, setReminderTime] = useState("09:00");
+  const [gcalConnected, setGcalConnected] = useState(false);
+  const [gcalLoading, setGcalLoading] = useState(false);
+  const hasGoogleCalendar = typeof window !== "undefined" && window.googleCalendar;
+
+  useEffect(() => {
+    if (hasGoogleCalendar) {
+      window.googleCalendar.isConnected().then((r) => setGcalConnected(r.connected));
+    }
+  }, [hasGoogleCalendar]);
 
   useEffect(() => {
     const n = localStorage.getItem(NOTIFICATIONS_KEY);
@@ -80,6 +89,72 @@ export default function Settings() {
                 </div>
                 <span className={`text-sm ${muted}`}>Edit →</span>
               </button>
+            )}
+
+            {/* Profile settings - doctors only */}
+            {isDoctor && (
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard/doctor-profile")}
+                className={`w-full flex items-center justify-between px-6 py-5 text-left transition ${dark ? "hover:bg-gray-700/50" : "hover:bg-gray-50/80"}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-para-teal/10 flex items-center justify-center">
+                    <User className="w-5 h-5 text-para-teal" />
+                  </div>
+                  <div>
+                    <p className={`font-medium ${text}`}>Profile settings</p>
+                    <p className={`text-sm ${muted}`}>Your details, qualifications and practice info</p>
+                  </div>
+                </div>
+                <span className={`text-sm ${muted}`}>Edit →</span>
+              </button>
+            )}
+
+            {/* Google Calendar - Electron only */}
+            {hasGoogleCalendar && (
+              <div className="px-6 py-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-para-teal/10 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-para-teal" />
+                  </div>
+                  <div>
+                    <p className={`font-medium ${text}`}>Google Calendar</p>
+                    <p className={`text-sm ${muted}`}>
+                      {gcalConnected ? "Connected. App can create and list events." : "Connect to sync appointments and events."}
+                    </p>
+                  </div>
+                </div>
+                {gcalLoading ? (
+                  <span className={`text-sm ${muted}`}>Please complete sign-in in the browser…</span>
+                ) : gcalConnected ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setGcalLoading(true);
+                      const r = await window.googleCalendar.disconnect();
+                      setGcalConnected(false);
+                      setGcalLoading(false);
+                    }}
+                    className="text-sm text-para-teal font-medium hover:underline"
+                  >
+                    Disconnect
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setGcalLoading(true);
+                      const r = await window.googleCalendar.startAuth();
+                      setGcalLoading(false);
+                      if (r && r.ok) setGcalConnected(true);
+                    }}
+                    className="text-sm text-para-teal font-medium hover:underline"
+                  >
+                    Connect Google Calendar
+                  </button>
+                )}
+              </div>
             )}
 
             {/* Dark mode */}

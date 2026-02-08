@@ -26,6 +26,7 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
 import Biodata from "./pages/Biodata";
+import DoctorProfile from "./pages/DoctorProfile";
 
 export default function App() {
   return (
@@ -146,6 +147,16 @@ export default function App() {
               <ProtectedRoute>
                 <Layout>
                   <Reports />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/doctor-profile"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <DoctorProfile />
                 </Layout>
               </ProtectedRoute>
             }

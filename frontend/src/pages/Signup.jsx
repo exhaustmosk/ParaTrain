@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import { setPendingBiodata } from "../utils/biodataStorage";
+import { setPendingDoctorProfile } from "../utils/doctorProfileStorage";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -23,9 +24,10 @@ export default function Signup() {
       return;
     }
     if (!isDoctor) setPendingBiodata();
+    else setPendingDoctorProfile();
     setSignupSuccess(true);
     setMessage(isDoctor
-      ? "OTP flow will be connected when backend is ready. You can log in with ABC / ABC for now."
+      ? "Account created. When you log in, you'll be asked to complete your profile settings."
       : "Account created. When you log in, you'll be asked to complete your health profile.");
   };
 
